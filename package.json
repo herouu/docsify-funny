@@ -1,0 +1,28 @@
+{
+  "name": "@herouu/docsify-funny",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && rimraf dist && vite build --mode production",
+    "preview": "vite preview",
+    "example": "npm run build && cpr dist docs/dist -d && docsify serve docs"
+  },
+  "dependencies": {
+    "@vue/server-renderer": "^3.5.13",
+    "lottie-web": "^5.12.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "cpr": "^3.0.1",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0",
+    "vue-tsc": "^2.2.0"
+  },
+  "publishConfig": {
+    "herouu:registry": "https://npm.pkg.github.com"
+  }
+}
