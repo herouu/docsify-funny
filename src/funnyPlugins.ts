@@ -2,8 +2,18 @@ import type {DocsifyHooks} from "./types/docsify";
 import {nanoid} from "nanoid";
 import {createApp} from "vue";
 import App from "./App.vue";
+import FavoritesCard from "./FavoritesCard.vue";
+import './style.css'
+const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
+    hook.beforeEach((markdown: string) => {
+        if (markdown.startsWith("# Card")) {
+            const div = document.createElement('div')
+            createApp(FavoritesCard, {markdown: markdown}).mount(div)
+            return div.innerHTML
+        }
+        return markdown
+    })
 
-const docsifyFunnyPlugin = (hook: DocsifyHooks) => {
     function handleLottie(doc: Document) {
         const fileType = 'Lottie'
         const contentList = doc.querySelectorAll(`img[data-origin^='${fileType}>>']`);
@@ -27,6 +37,7 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks) => {
     }
 
     function handleVideo(doc: Document) {
+        console.log("handleVideo", vm.route.file)
         const contentList = doc.querySelectorAll(`img[data-origin^='Bilibili>>'], img[data-origin^='Youtube>>']`);
         contentList.forEach((contentElement) => {
             const div = doc.createElement('div');

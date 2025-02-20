@@ -1,5 +1,5 @@
 {
-  "name": "@herouu/docsify-funny",
+  "name": "docsify-funny-plugin",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
