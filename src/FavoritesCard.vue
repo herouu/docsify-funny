@@ -88,8 +88,6 @@ onMounted(() => {
   height: 100%;
   display: grid;
   gap: 16px; /* 网格间距 */
-  background: var(--background-primary);
-
 }
 
 .card {
