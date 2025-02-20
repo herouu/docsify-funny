@@ -12,13 +12,13 @@ interface CardItem {
   detail?: string
 }
 
+console.log(props.markdown)
+
 props.markdown?.split("\n").forEach((item) => {
-  if (item.startsWith("#")) {
+  if (item === "" || item.startsWith("#")) {
     return
   }
-
-  const contents = [item.match(/\((.*?)\)/)?.[1]].filter(item => item !== undefined)
-
+  const contents = [item.match(/\((.*?)\)/)?.[1]].filter(x => x !== undefined)
   let title = item.match(/\[(.*?)\]/)?.[1] || ''
   let detail = ''
   if (title.startsWith('. ')) {
@@ -35,7 +35,9 @@ props.markdown?.split("\n").forEach((item) => {
   data.value.push(cardItem)
 })
 
+console.log(data.value)
 const dom = ref()
+
 function jump(index: number) {
   const aList = dom.value[index].querySelectorAll('a')
   if (aList.length > 1) {
