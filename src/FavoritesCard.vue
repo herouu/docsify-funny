@@ -15,7 +15,7 @@ interface CardItem {
 console.log(props.markdown)
 
 props.markdown?.split("\n").forEach((item) => {
-  if (item === "" || item.startsWith("#")) {
+  if (item === "" || item.startsWith("#") || !item.startsWith("*")) {
     return
   }
   const contents = [item.match(/\((.*?)\)/)?.[1]].filter(x => x !== undefined)
