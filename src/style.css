@@ -1,6 +1,4 @@
 :root {
-    --background-primary: #f8f9fa; /* 背景主色 */
-    --background-secondary: #e9ecef; /* 背景次色 */
     --card-background: #68b88e; /* 卡片背景色 */
     --text-color: #212529; /* 文字颜色 */
     --border-radius: 0.5rem; /* 边框半径 */
