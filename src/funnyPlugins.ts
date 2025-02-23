@@ -5,6 +5,7 @@ import LottieSvg from "./LottieSvg.vue";
 import FavoritesCard from "./FavoritesCard.vue";
 import NotabilitySvg from "./NotabilitySvg.vue";
 import './style.css'
+import Table from "./Table.vue";
 
 const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
     hook.beforeEach((markdown: string) => {
@@ -15,6 +16,16 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
             createApp(FavoritesCard, {markdown: markdown}).mount(div)
             return div.innerHTML
         }
+        if (markdown.includes("```table")) {
+            const regex = /```table\r\n([^`]+)```/g;
+            const matches = markdown.matchAll(regex);
+            for (const match of matches) {
+                const div = document.createElement('div')
+                createApp(Table, {markdown: match[1]}).mount(div)
+                markdown = markdown.replace(match[0], div.innerHTML)
+            }
+        }
+
         return markdown
     })
 
@@ -72,7 +83,7 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
             const fileUrl = contentElement.getAttribute('src')?.replace(fileType + '>>', '') || ''
             if (fileUrl) {
                 createApp(NotabilitySvg, {
-                    fileUrl,id
+                    fileUrl, id
                 }).mount(div);
             }
             contentElement.replaceWith(div)

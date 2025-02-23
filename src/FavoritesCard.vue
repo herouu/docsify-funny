@@ -12,8 +12,6 @@ interface CardItem {
   detail?: string
 }
 
-console.log(props.markdown)
-
 props.markdown?.split("\n").forEach((item) => {
   if (item === "" || item.startsWith("#") || !item.startsWith("*")) {
     return
@@ -35,7 +33,6 @@ props.markdown?.split("\n").forEach((item) => {
   data.value.push(cardItem)
 })
 
-console.log(data.value)
 const dom = ref()
 
 function jump(index: number) {
