@@ -27,24 +27,34 @@ async function parsePlist(buffer: ArrayBuffer) {
   let curvesWidth: number[] = []
   // 定义一个数组，用于存储每条曲线的分数宽度
   // let curvesFractionalWidths: number[] = []
+  // 存储每条曲线的颜色
+  let curvesColors: String[] = []
   dict.$objects?.forEach((item) => {
     if (typeof item !== 'object') {
       return
     }
+
     if (item.curvespoints) {
       curvesPoints = unpackStruct(item.curvespoints)
     }
     if (item.curvesnumpoints) {
-      curvesNumPoints = unpackStruct(item.curvesnumpoints, 'i')
+      curvesNumPoints = unpackStruct(item.curvesnumpoints, 'int32')
     }
     if (item.curveswidth) {
       curvesWidth = unpackStruct(item.curveswidth)
+    }
+    if (item.curvescolors) {
+      // 转16进制字符串
+      curvesColors = unpackStruct(item.curvescolors, 'uint32').map((item) => {
+        return `#${item.toString(16).padStart(8, '0')}`
+      })
     }
     // if (item.curvesfractionalwidths) {
     //   curvesFractionalWidths = unpackStruct(item.curvesfractionalwidths)
     // }
   })
 
+  console.log("curvesColors", curvesColors)
 
   let xPoints = [], yPoints = []
 
@@ -70,7 +80,7 @@ async function parsePlist(buffer: ArrayBuffer) {
         commands.push(`M ${xSubPoints[j]} ${ySubPoints[j]} L ${xSubPoints[j - 1]} ${ySubPoints[j - 1]}`);
       }
     }
-    svg.push(`<path d="${commands.join(' ')}" stroke="black" stroke-width="${curvesWidth[i]}"/>`);
+    svg.push(`<path d="${commands.join(' ')}" stroke="${curvesColors[i]}" stroke-width="${curvesWidth[i]}"/>`);
     totalNumPoints += numPoints;
   }
   const svgContent = `<svg xmlns="http://www.w3.org/2000/svg">${svg.join('')}</svg>`;
@@ -84,6 +94,36 @@ async function parsePlist(buffer: ArrayBuffer) {
   })
 }
 
+
+function arrayBufferToHex(buffer) {
+  // 创建一个 Uint8Array 视图来访问 ArrayBuffer 中的每个字节
+  const uint8Array = new Uint8Array(buffer);
+  let hexString = '';
+
+  // 遍历 Uint8Array 中的每个字节
+  for (let i = 0; i < uint8Array.length; i++) {
+    // 将每个字节转换为两位十六进制字符串
+    const hex = uint8Array[i].toString(16).padStart(2, '0');
+    // 拼接十六进制字符串
+    hexString += hex;
+  }
+  return hexString;
+}
+
+function dataViewToHex(dataView) {
+  let hexString = '';
+  // 遍历 DataView 中的每个字节
+  for (let i = 0; i < dataView.byteLength; i++) {
+    // 读取当前字节
+    const byte = dataView.getUint8(i);
+    // 将字节转换为两位十六进制字符串
+    const hexByte = byte.toString(16).padStart(2, '0');
+    // 拼接十六进制字符串
+    hexString += hexByte;
+  }
+  return hexString;
+}
+
 function* chunks(array: any[], size: number = 2): IterableIterator<any[]> {
   for (let i = 0; i < array.length; i += size) {
     yield array.slice(i, i + size);
@@ -91,19 +131,20 @@ function* chunks(array: any[], size: number = 2): IterableIterator<any[]> {
 }
 
 
-function unpackStruct(value: ArrayBuffer, unit: string = 'f'): number[] {
+function unpackStruct(value: ArrayBuffer, unit: string = 'float32'): number[] {
   const dataView = new DataView(value);
   const result: number[] = [];
   const elementSize = unit === 'f' ? 4 : 4; // Assuming 'f' for float32 and 'i' for int32, both are 4 bytes
 
   for (let i = 0; i < value.byteLength; i += elementSize) {
-    if (unit === 'f') {
+    if (unit === 'float32') {
       result.push(dataView.getFloat32(i, true)); // true for little-endian
-    } else if (unit === 'i') {
+    } else if (unit === 'int32') {
       result.push(dataView.getInt32(i, true)); // true for little-endian
+    } else if (unit === 'uint32') {
+      result.push(dataView.getUint32(i, false))
     }
   }
-
   return result;
 }
 

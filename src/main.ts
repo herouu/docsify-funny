@@ -1,16 +1,14 @@
 import {createApp} from 'vue'
 import './style.css'
-// import App from './App.vue'
 import FavoritesCard from './FavoritesCard.vue'
 import NotabilitySvg from "./NotabilitySvg.vue";
 import Table from "./Table.vue";
 // const filePath = "/src/assets/test.json"
-// createApp(App,{filePath}).mount('#app')
 
 
-let type = 'Table'
+let type = 'NotabilitySvg'
 if (type === 'NotabilitySvg') {
-    const fileUrl = "http://127.0.0.1:8080/20250223.note"
+    const fileUrl = "http://127.0.0.1:8080/20250224.note"
     createApp(NotabilitySvg, {fileUrl}).mount('#notability')
 } else if (type === 'FavoritesCard') {
     const markdown = `
