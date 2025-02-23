@@ -16,16 +16,6 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
             createApp(FavoritesCard, {markdown: markdown}).mount(div)
             return div.innerHTML
         }
-        if (markdown.includes("```table")) {
-            const regex = /```table\r\n([^`]+)```/g;
-            const matches = markdown.matchAll(regex);
-            for (const match of matches) {
-                const div = document.createElement('div')
-                createApp(Table, {markdown: match[1]}).mount(div)
-                markdown = markdown.replace(match[0], div.innerHTML)
-            }
-        }
-
         return markdown
     })
 
@@ -91,12 +81,21 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
     }
 
 
+    function handleTable(doc: Document) {
+        doc.querySelectorAll('pre[data-lang="table"]').forEach(item => {
+            const div = doc.createElement('div')
+            createApp(Table, {markdown: item.querySelector('code')?.innerText}).mount(div)
+            item.replaceWith(div)
+        })
+    }
+
     hook.afterEach((html: string) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         handleNotability(doc);
         handleVideo(doc);
         handleLottie(doc);
+        handleTable(doc)
         return doc.body.innerHTML;
     });
 }
