@@ -1,11 +1,15 @@
 import type {DocsifyHooks} from "./types/docsify";
 import {nanoid} from "nanoid";
 import {createApp} from "vue";
-import App from "./App.vue";
+import LottieSvg from "./LottieSvg.vue";
 import FavoritesCard from "./FavoritesCard.vue";
+import NotabilitySvg from "./NotabilitySvg.vue";
 import './style.css'
+
 const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
     hook.beforeEach((markdown: string) => {
+        // 获取路径
+        console.log(vm.route)
         if (markdown.startsWith("# Card")) {
             const div = document.createElement('div')
             createApp(FavoritesCard, {markdown: markdown}).mount(div)
@@ -28,7 +32,7 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
                 return
             }
             if (filePath) {
-                createApp(App, {
+                createApp(LottieSvg, {
                     filePath: filePath, id: id
                 }).mount(div);
             }
@@ -37,7 +41,6 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
     }
 
     function handleVideo(doc: Document) {
-        console.log("handleVideo", vm.route.file)
         const contentList = doc.querySelectorAll(`img[data-origin^='Bilibili>>'], img[data-origin^='Youtube>>']`);
         contentList.forEach((contentElement) => {
             const div = doc.createElement('div');
@@ -47,7 +50,6 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
             const video = sp[1].trim()
             const platform = sp[0]
             const frameStyle = `width: 100%;height: 100%;`
-            console.log(platform, video)
             if (platform === "Bilibili") {
                 iframe = `<iframe style="${frameStyle}" src="//player.bilibili.com/player.html?isOutside=true&${video}&p=1&autoplay=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>`
             } else if (platform === "Youtube") {
@@ -60,9 +62,28 @@ const docsifyFunnyPlugin = (hook: DocsifyHooks, vm: any) => {
         });
     }
 
+    function handleNotability(doc: Document) {
+        const fileType = 'Notability'
+        const contentList = doc.querySelectorAll(`img[data-origin^='${fileType}>>']`);
+        contentList.forEach((contentElement) => {
+            const div = doc.createElement('div');
+            const id = nanoid()
+            div.setAttribute('id', id)
+            const fileUrl = contentElement.getAttribute('src')?.replace(fileType + '>>', '') || ''
+            if (fileUrl) {
+                createApp(NotabilitySvg, {
+                    fileUrl,id
+                }).mount(div);
+            }
+            contentElement.replaceWith(div)
+        });
+    }
+
+
     hook.afterEach((html: string) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
+        handleNotability(doc);
         handleVideo(doc);
         handleLottie(doc);
         return doc.body.innerHTML;

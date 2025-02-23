@@ -1,0 +1,151 @@
+<script setup lang="ts">
+import JSZip from "jszip";
+import {parse} from "@plist/binary.parse";
+import {nextTick, ref} from "vue";
+
+const props = defineProps({
+  fileUrl: String,
+  id: String
+})
+
+const dom = ref()
+const svgWidth = ref()
+const svgHeight = ref()
+
+interface PlistDict {
+  $objects?: any[]
+}
+
+async function parsePlist(buffer: ArrayBuffer) {
+  const dict = parse(buffer) as PlistDict;
+
+  // 定义一个数组，用于存储曲线上的点的位置
+  let curvesPoints: number[] = []
+  // 定义一个数组，用于存储每条曲线的点的数量
+  let curvesNumPoints: number[] = []
+  // 定义一个数组，用于存储每条曲线的宽度
+  let curvesWidth: number[] = []
+  // 定义一个数组，用于存储每条曲线的分数宽度
+  // let curvesFractionalWidths: number[] = []
+  dict.$objects?.forEach((item) => {
+    if (typeof item !== 'object') {
+      return
+    }
+    if (item.curvespoints) {
+      curvesPoints = unpackStruct(item.curvespoints)
+    }
+    if (item.curvesnumpoints) {
+      curvesNumPoints = unpackStruct(item.curvesnumpoints, 'i')
+    }
+    if (item.curveswidth) {
+      curvesWidth = unpackStruct(item.curveswidth)
+    }
+    // if (item.curvesfractionalwidths) {
+    //   curvesFractionalWidths = unpackStruct(item.curvesfractionalwidths)
+    // }
+  })
+
+
+  let xPoints = [], yPoints = []
+
+  for (const [x, y] of chunks(curvesPoints)) {
+    xPoints.push(x);
+    yPoints.push(y);
+  }
+
+  svgWidth.value = Math.round(Math.max(...xPoints))
+  svgHeight.value = Math.round(Math.max(...yPoints))
+  const svg: string[] = [];
+
+  let totalNumPoints = 0;
+  for (let i = 0; i < curvesNumPoints.length; i++) {
+    const numPoints = curvesNumPoints[i];
+    const xSubPoints = xPoints.slice(totalNumPoints, totalNumPoints + numPoints);
+    const ySubPoints = yPoints.slice(totalNumPoints, totalNumPoints + numPoints);
+
+    const commands: string[] = [];
+
+    for (let j = 0; j < xSubPoints.length; j++) {
+      if (j > 0) {
+        commands.push(`M ${xSubPoints[j]} ${ySubPoints[j]} L ${xSubPoints[j - 1]} ${ySubPoints[j - 1]}`);
+      }
+    }
+    svg.push(`<path d="${commands.join(' ')}" stroke="black" stroke-width="${curvesWidth[i]}"/>`);
+    totalNumPoints += numPoints;
+  }
+  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg">${svg.join('')}</svg>`;
+  const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+  dom.value.querySelector('object').data = URL.createObjectURL(blob);
+  await nextTick(() => {
+    const ele = document.getElementById(props.id!)
+    if (ele) {
+      document.getElementById(props.id!)!.replaceChildren(dom.value.querySelector('object'))
+    }
+  })
+}
+
+function* chunks(array: any[], size: number = 2): IterableIterator<any[]> {
+  for (let i = 0; i < array.length; i += size) {
+    yield array.slice(i, i + size);
+  }
+}
+
+
+function unpackStruct(value: ArrayBuffer, unit: string = 'f'): number[] {
+  const dataView = new DataView(value);
+  const result: number[] = [];
+  const elementSize = unit === 'f' ? 4 : 4; // Assuming 'f' for float32 and 'i' for int32, both are 4 bytes
+
+  for (let i = 0; i < value.byteLength; i += elementSize) {
+    if (unit === 'f') {
+      result.push(dataView.getFloat32(i, true)); // true for little-endian
+    } else if (unit === 'i') {
+      result.push(dataView.getInt32(i, true)); // true for little-endian
+    }
+  }
+
+  return result;
+}
+
+
+// 解析.note zip文件
+async function parseNoteFile(fileUrl: string) {
+  const fileContent = await fetch(fileUrl)
+      .then(response => response.blob())
+  const file = new File([fileContent], 'file.note', {type: 'application/zip'})
+  const blob = await unzipFile(file)
+  // 处理plist 文件
+  await parsePlist(blob)
+}
+
+
+async function unzipFile(file: File): Promise<ArrayBuffer> {
+  const zip = new JSZip();
+  const content = await file.arrayBuffer();
+  const result = await zip.loadAsync(content, {base64: false, checkCRC32: true});
+
+  for (const filename in result.files) {
+    if (!result.files[filename].dir) {
+      if (filename.endsWith('Session.plist')) {
+        return await result.files[filename].async('arraybuffer');
+      }
+    }
+  }
+  throw new Error('No Session.plist file found in the zip file.');
+}
+
+if (props.fileUrl) {
+  parseNoteFile(props.fileUrl)
+}
+
+</script>
+
+<template>
+  <div ref="dom">
+    <object type="image/svg+xml" style="margin: auto; display: block" :width="svgWidth" :height="svgHeight"></object>
+  </div>
+</template>
+
+<style scoped>
+
+</style>
