@@ -1,17 +1,19 @@
-import {createApp} from 'vue'
-import './style.css'
-import FavoritesCard from './FavoritesCard.vue'
+import { createApp } from "vue";
+import "./style.css";
+import FavoritesCard from "./FavoritesCard.vue";
 import NotabilitySvg from "./NotabilitySvg.vue";
 import Table from "./Table.vue";
+import DemoPreview from "./demo/DemoPreview.vue";
+import { nanoid } from "nanoid";
 // const filePath = "/src/assets/test.json"
 
-
-let type = 'NotabilitySvg'
-if (type === 'NotabilitySvg') {
-    const fileUrl = "http://127.0.0.1:8080/20250224.note"
-    createApp(NotabilitySvg, {fileUrl}).mount('#notability')
-} else if (type === 'FavoritesCard') {
-    const markdown = `
+const div = document.createElement("div");
+let type = "demo";
+if (type === "NotabilitySvg") {
+  const fileUrl = "http://127.0.0.1:8080/20250224.note";
+  createApp(NotabilitySvg, { fileUrl }).mount(div);
+} else if (type === "FavoritesCard") {
+  const markdown = `
 # Card
 * [技术文章摘抄](https://learn.lianglianglee.com/)
 * [Rust 程序设计语言](https://rustwiki.org/zh-CN/book/)
@@ -31,14 +33,19 @@ if (type === 'NotabilitySvg') {
 * [TypeScript手册](https://bosens-china.github.io/)
 * [vue3资源](https://vue3js.cn/)
 * [Vue3 入门指南与实战案例](https://vue3.chengpeiquan.com/)
-`
-    createApp(FavoritesCard, {markdown}).mount('#favorite')
-}else if(type === 'Table'){
-    const markdown =`
+`;
+  createApp(FavoritesCard, { markdown }).mount(div);
+} else if (type === "Table") {
+  const markdown = `
 "标题1,12",标题2,标题3
 "什么,11",什么,什么
 "什么,22",什么,什么
 "什么,33",什么,什么
-`
-    createApp(Table, {markdown}).mount('#table')
+`;
+  createApp(Table, { markdown }).mount(div);
+} else if (type === "demo") {
+  const json5 = `{vue: 'test.vue',html:'test.html'}`;
+  const id = nanoid();
+  createApp(DemoPreview, { json5, id }).mount(div);
 }
+document.body.appendChild(div);

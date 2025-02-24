@@ -25,7 +25,7 @@
 
 ![](Youtube>>7-SOwxpZQNI?si=kIsQSilGNjMiNomZ)
 
-># Notability to svg
+> # Notability to svg
 
 ```markdown
 ![](Notability>>files/20250223.note)
@@ -33,7 +33,7 @@
 
 ![](Notability>>files/20250223.note)
 
-># 解析csv表格
+> # 解析csv表格
 
 ````text
 ```table
@@ -56,6 +56,19 @@
 "table2",什么2,什么
 "table2",什么2,什么
 "table2",什么2,什么
+```
+
+> # demo preview
+
+````text
+// json5格式
+```demo
+{vue: 'demos/test.vue',html: 'demos/test.html'}
+```
+````
+
+```demo
+{vue: 'demos/test.vue',html: 'demos/test.html'}
 ```
 
 
