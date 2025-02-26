@@ -112,13 +112,13 @@ nextTick(() => {
           :code="copyCode"
         ></tool>
         <div class="code-container" v-if="showCode">
-          <pre><code v-html="displayHeightLightCode"></code></pre>
+          <pre><code class="language-html" v-html="displayHeightLightCode"></code></pre>
         </div>
       </div>
       <div v-else-if="codeType === 'vue'">
         <component
           class="vue-box-preview"
-          style="border: none"
+          style="border: none; background: #f9f9f9"
           :is="previewComp"
         ></component>
         <tool
@@ -127,7 +127,7 @@ nextTick(() => {
           :code="copyVueCode"
         ></tool>
         <div class="code-container" v-if="showCodeVue">
-          <pre><code v-html="vueDisplayCode"></code></pre>
+          <pre><code class="language-html" v-html="vueDisplayCode"></code></pre>
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@ section {
   flex-direction: column;
   gap: 20px; /* 增加每个区域之间的间距 */
   padding: 0; /* 增加整体的内边距 */
-  background-color: #f9f9f9; /* 设置背景色 */
+  border-radius: 5px;
 }
 
 .box-container-iframe {
@@ -172,6 +172,7 @@ iframe {
   width: 100%;
   height: 300px; /* 固定高度以适应内容 */
   border: none;
+  background-color: #f9f9f9; /* 设置背景色 */
 }
 
 .code-container {
