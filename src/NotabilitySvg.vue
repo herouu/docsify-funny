@@ -98,7 +98,9 @@ async function parsePlist(buffer: ArrayBuffer) {
     );
     totalNumPoints += numPoints;
   }
-  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg">${svg.join(
+  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${
+    svgWidth.value
+  } ${svgHeight.value}" preserveAspectRatio="xMidYMid meet">${svg.join(
     ""
   )}</svg>`;
   const blob = new Blob([svgContent], { type: "image/svg+xml" });
