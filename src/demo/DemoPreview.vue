@@ -3,9 +3,12 @@ import JSON5 from "json5";
 import * as Vue from "vue";
 import { defineAsyncComponent, nextTick, ref, shallowRef } from "vue";
 import { loadModule } from "vue3-sfc-loader";
+import hljs from "highlight.js";
 
 const previewComp = shallowRef();
 const dom = ref();
+const displayCode = ref();
+const vueDisplayCode = ref();
 
 interface DemoPreviewProps {
   vue?: string;
@@ -33,7 +36,9 @@ const vuePreview = () => {
       const res = await fetch(url);
       if (!res.ok)
         throw Object.assign(new Error(url + " " + res.statusText), { res });
-      return await res.text();
+      const text = await res.text();
+      vueDisplayCode.value = hljs.highlightAuto(text).value;
+      return text;
     },
     addStyle(textContent) {
       const style = Object.assign(document.createElement("style"), {
@@ -47,14 +52,33 @@ const vuePreview = () => {
     loadModule(config.vue, options)
   );
 };
-console.log("codeTypess", codeTypes);
+
 if (codeTypes.includes("vue")) {
   vuePreview();
 }
 
+if (codeTypes.includes("html")) {
+  getHtml(config.html);
+}
+
+async function getHtml(url: string) {
+  const res = await fetch(url).then((res) => res.text());
+  await nextTick(() => {
+    let iframe = dom.value.querySelector("iframe");
+    const iframeDocument =
+      iframe.contentDocument || iframe.contentWindow.document;
+    displayCode.value = hljs.highlightAuto(res).value;
+    iframeDocument.write(res);
+    iframeDocument.close();
+  });
+}
+
 nextTick(() => {
   if (props.id) {
-    document.getElementById(props.id).replaceWith(dom.value);
+    const ele = document.getElementById(props.id);
+    if (ele) {
+      ele.replaceWith(dom.value);
+    }
   }
 });
 </script>
@@ -63,8 +87,18 @@ nextTick(() => {
   <!-- 预览部分 -->
   <section ref="dom">
     <div v-for="codeType in codeTypes">
-      <iframe v-if="codeType === 'html'" :src="config.html"></iframe>
-      <component :is="previewComp" v-else-if="codeType === 'vue'"></component>
+      <div v-if="codeType === 'html'">
+        <iframe style="width: 100%; height: auto; border: none"></iframe>
+        <div class="code-container">
+          <pre><code v-html="displayCode"></code></pre>
+        </div>
+      </div>
+      <div v-else-if="codeType === 'vue'">
+        <component :is="previewComp"></component>
+        <div class="code-container">
+          <pre><code v-html="vueDisplayCode"></code></pre>
+        </div>
+      </div>
     </div>
   </section>
 </template>

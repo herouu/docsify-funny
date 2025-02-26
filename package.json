@@ -14,6 +14,7 @@
     "@plist/binary.parse": "^1.1.0",
     "@vue/compiler-sfc": "^3.5.13",
     "@vue/server-renderer": "^3.5.13",
+    "highlight.js": "^11.11.1",
     "json5": "^2.2.3",
     "jszip": "^3.10.1",
     "lottie-web": "^5.12.2",

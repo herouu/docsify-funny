@@ -46,6 +46,7 @@ if (type === "NotabilitySvg") {
 } else if (type === "demo") {
   const json5 = `{vue: 'test.vue',html:'test.html'}`;
   const id = nanoid();
-  createApp(DemoPreview, { json5, id }).mount(div);
+  const app = createApp(DemoPreview, { json5, id });
+  app.mount(div);
 }
 document.body.appendChild(div);
