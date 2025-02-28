@@ -54,8 +54,6 @@ async function parsePlist(buffer: ArrayBuffer) {
     // }
   });
 
-  console.log("curvesColors", curvesColors);
-
   let xPoints = [],
     yPoints = [];
 
