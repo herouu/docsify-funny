@@ -8,7 +8,7 @@ import { nanoid } from "nanoid";
 // const filePath = "/src/assets/test.json"
 
 const div = document.createElement("div");
-let type = "NotabilitySvg";
+let type = "demo";
 if (type === "NotabilitySvg") {
   const fileUrl = "http://127.0.0.1:8080/20250228.note";
   createApp(NotabilitySvg, { fileUrl }).mount(div);

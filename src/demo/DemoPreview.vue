@@ -106,11 +106,7 @@ nextTick(() => {
     <div v-for="codeType in codeTypes" class="box-container">
       <div v-if="codeType === 'html'">
         <iframe class="box-container-iframe"></iframe>
-        <tool
-          :handleShowClick="() => (showCode = !showCode)"
-          :show="showCode"
-          :code="copyCode"
-        ></tool>
+        <tool v-model:show="showCode" :code="copyCode" code-type="html"></tool>
         <div class="code-container" v-if="showCode">
           <pre><code class="language-html" v-html="displayHeightLightCode"></code></pre>
         </div>
@@ -122,9 +118,9 @@ nextTick(() => {
           :is="previewComp"
         ></component>
         <tool
-          :handleShowClick="() => (showCodeVue = !showCodeVue)"
-          :show="showCodeVue"
+          v-model:show="showCodeVue"
           :code="copyVueCode"
+          codeType="vue"
         ></tool>
         <div class="code-container" v-if="showCodeVue">
           <pre><code class="language-html" v-html="vueDisplayCode"></code></pre>
