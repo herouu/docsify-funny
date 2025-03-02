@@ -54,6 +54,8 @@ async function parsePlist(buffer: ArrayBuffer) {
     // }
   });
 
+  console.log("curvesNumPoints", curvesNumPoints);
+  console.log("curvesPoints", curvesPoints);
   let xPoints = [],
     yPoints = [];
 
@@ -83,7 +85,7 @@ async function parsePlist(buffer: ArrayBuffer) {
     for (let j = 0; j < xSubPoints.length; j++) {
       if (j > 0) {
         commands.push(
-          `M ${xSubPoints[j]} ${ySubPoints[j]} L ${xSubPoints[j - 1]} ${
+          `M ${xSubPoints[j]} ${ySubPoints[j]} ${xSubPoints[j - 1]} ${
             ySubPoints[j - 1]
           }`
         );
@@ -92,7 +94,9 @@ async function parsePlist(buffer: ArrayBuffer) {
     svg.push(
       `<path d="${commands.join(" ")}" stroke="${
         curvesColors[i]
-      }" stroke-width="${curvesWidth[i]}"/>`
+      }" stroke-width="${
+        curvesWidth[i]
+      }" style="stroke-dasharray:none;stroke-opacity:1;stroke-linecap:round;stroke-linejoin:round;fill:none;"/>`
     );
     totalNumPoints += numPoints;
   }
